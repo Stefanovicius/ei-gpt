@@ -1,0 +1,30 @@
+{
+  "name": "hej-gpt",
+  "description": "A CLI for chatting with ChatGPT.",
+  "version": "0.0.1",
+  "author": "Adomas Stefanovičius",
+  "keywords": [
+    "chat",
+    "chatgpt",
+    "cli",
+    "gpt",
+    "hej",
+    "openai",
+    "terminal"
+  ],
+  "module": "src/index.ts",
+  "bin": {
+    "hej": "src/index.ts"
+  },
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest",
+    "prettier": "^3.2.5"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "commander": "^12.0.0"
+  }
+}
