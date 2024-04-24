@@ -1,15 +1,16 @@
-#!/usr/bin/env bun
+#! /usr/bin/env bun
 
 import { program } from 'commander'
+import { getApiKey } from './api-key'
 
 program
-  .version('0.0.1')
+  .version('0.0.2')
   .description('A CLI for chatting with ChatGPT.')
   .arguments('<prompt>')
   .option('-k, --set-api-key', 'Set API key interactively')
-  .action((prompt, cmd) => {
-    console.log('User prompt:', prompt)
-    console.log('Set API key interactively:', cmd.setApiKey)
-  });
+  .action(async (prompt, cmd) => {
+    const apiKey = await getApiKey(cmd.setApiKey ?? false)
+    // This is where the chat functionality will go
+  })
 
-program.parse(process.argv);
+program.parse(process.argv)
