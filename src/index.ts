@@ -1,7 +1,7 @@
 #! /usr/bin/env bun
 
 import { program } from 'commander'
-import { getApiKey } from './api-key'
+import { getApiKey } from './credentials'
 
 program
   .version('0.0.2')
