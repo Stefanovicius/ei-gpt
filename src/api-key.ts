@@ -49,8 +49,7 @@ async function getEncryptedApiKey() {
     return decrypt(encrypted[0], encrypted[1])
   } catch (err) {
     // @ts-ignore
-    if (err.code === 'ENOENT') return null
-    else console.error(err)
+    if (err.code !== 'ENOENT') console.error(err)
     return null
   }
 }
