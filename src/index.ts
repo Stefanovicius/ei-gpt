@@ -5,7 +5,7 @@ import { getApiKey } from './credentials'
 import { GPT } from './gpt'
 
 program
-  .version('0.1.0')
+  .version('0.1.1')
   .description('A CLI for chatting with ChatGPT.')
   .arguments('<prompt>')
   .option('-k, --set-api-key', 'Set API key interactively')
