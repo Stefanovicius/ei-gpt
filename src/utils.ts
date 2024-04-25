@@ -16,3 +16,5 @@ export const colorize = (
   const colorEscapeCode = `\x1b[38;2;${r};${g};${b}m`
   return `${colorEscapeCode}${text}${resetCode}`
 }
+
+export const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))

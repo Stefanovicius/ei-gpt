@@ -2,15 +2,17 @@
 
 import { program } from 'commander'
 import { getApiKey } from './credentials'
+import { GPT } from './gpt'
 
 program
-  .version('0.0.2')
+  .version('0.1.0')
   .description('A CLI for chatting with ChatGPT.')
   .arguments('<prompt>')
   .option('-k, --set-api-key', 'Set API key interactively')
   .action(async (prompt, cmd) => {
     const apiKey = await getApiKey(cmd.setApiKey ?? false)
-    // This is where the chat functionality will go
+    const gpt = new GPT(apiKey)
+    await gpt.sendMessage(prompt)
   })
 
 program.parse(process.argv)

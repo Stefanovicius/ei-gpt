@@ -30,7 +30,7 @@ async function decrypt(iv: string, encryptedText: string) {
   return decrypted.toString()
 }
 
-async function setReturnApiKey() {
+async function setEncryptReturnApiKey() {
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
@@ -56,10 +56,10 @@ async function getEncryptedApiKey() {
 }
 
 export async function getApiKey(setApiKey: boolean) {
-  if (setApiKey) return await setReturnApiKey()
+  if (setApiKey) return await setEncryptReturnApiKey()
   else {
     const apiKey = await getEncryptedApiKey()
-    if (!apiKey) return await setReturnApiKey()
+    if (!apiKey) return await setEncryptReturnApiKey()
     return apiKey
   }
 }
