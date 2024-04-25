@@ -6,7 +6,7 @@
 
 First you'll need to install [Bun](https://bun.sh/), it's a new JavaScript runtime built from scratch to serve the modern JavaScript ecosystem.
 
-Bun is designed as a drop-in replacement for Node.js. It natively implements hundreds of Node.js and Web APIs, including fs, path, Buffer and more.
+Bun is designed as a drop-in replacement for Node.js. It natively implements hundreds of Node.js and Web APIs, including `fs`, `path`, `Buffer` and more.
 
 The goal of Bun is to run most of the world's server-side JavaScript and provide tools to improve performance, reduce complexity, and multiply developer productivity.
 
@@ -14,12 +14,21 @@ You'll also need to get an [API key](https://platform.openai.com/docs/quickstart
 
 ## Getting started
 
-To get started, you'll need to clone the project to your local machine, and run `bun link` inside the directory, followed by `bun link ei-gpt`.
+To get started, install the prerequisites, get the OpenAI API key, then clone the project to your local machine, run `bun link` inside the directory, followed by `bun link ei-gpt`, and set the api key with `ei set -k`.
 
-Once you've done setting up, you can start using the tool by running `ei <prompt>`. It will ask you for an OpenAI API key on the first run (the project includes a secure mechanism for storing these keys), after you set it, you can begin making prompts to ChatGPT.
+## Usage
 
-In the future, you'll be able to install "Ei, GPT!" by running `bun i -g ei-gpt`, making it even easier to start chatting with GPT.
+```
+ei [prompt]  prompt the chatgpt model
+ei cls       clear/reset the conversation
+ei set -k    set the openai api key
+```
 
 ## Notes
 
-At the moment you can only prompt the GPT once, without any context, the GPT is only informed about the directory you're in and what type of system you're using. In the future the GPT will have more context, and will be able to intelligently choose to continue any past conversation. Stay tuned!
+- When you set the API key it will be encrypted and stored on your local machine.
+- All of the messages will also be stored in the local machine until you clear them.  
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
