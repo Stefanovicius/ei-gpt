@@ -1,11 +1,13 @@
 {
   "name": "ei-gpt",
   "description": "A user-friendly Command Line Interface (CLI) tool that allows you to interact with OpenAI's ChatGPT directly from your terminal.",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "author": "Adomas Stefanovičius",
   "keywords": [
+    "ai",
     "chat",
     "chatgpt",
+    "chatgpt-api",
     "cli",
     "ei",
     "eigpt",

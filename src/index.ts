@@ -6,19 +6,41 @@ import { GPT } from './gpt'
 
 program
   .name('ei')
-  .version('0.1.2')
+  .version('0.2.0')
   .description(
     `"Ei, GPT!" is a user-friendly Command Line Interface (CLI) tool that allows you to interact with OpenAI's ChatGPT directly from your terminal.`,
   )
 
+program.arguments('[prompt]').action(async (prompt) => {
+  const apiKey = await getApiKey(false)
+  const gpt = new GPT(apiKey)
+  // Check for message relevance, if the message is irrelevant, name
+  // and save the currently cached conversation, and start a new one
+  await gpt.sendMessage(prompt)
+})
+
 program
-  .arguments('[prompt]')
-  .option('-k, --set-api-key', 'Set API key interactively')
-  .action(async (prompt, cmd) => {
-    const apiKey = await getApiKey(cmd.setApiKey ?? false)
-    if (!prompt) return
-    const gpt = new GPT(apiKey)
-    await gpt.sendMessage(prompt)
+  .command('cls')
+  .description('clear/reset the last conversation')
+  .action(() => {
+    GPT.saveConversation([])
+    console.log('Conversation cleared.')
+  })
+
+program
+  .command('set')
+  .description(
+    `-k, --api-key   set api key
+-m, --model     set model
+-l, --language  set language`,
+  )
+  .option('-k, --api-key', 'set api key')
+  .option('-m, --model', 'set model')
+  .option('-l, --language', 'set language')
+  .action((cmd) => {
+    if (cmd.apiKey) getApiKey(true)
+    if (cmd.model) console.log('Eventually will allow you to set the model.')
+    if (cmd.language) console.log('Soon will allow you to set the language.')
   })
 
 program.parse(process.argv)
