@@ -1,13 +1,13 @@
 import OpenAI from 'openai'
 import { colorize, delay, eiDir } from './utils'
 
-const currentConversationPath = eiDir('messages', 'current')
+export const latestConversationPath = eiDir('messages', 'latest')
 
 export class GPT {
   private openai: OpenAI
-  private systemMessage: OpenAI.ChatCompletionMessageParam = {
+  private systemMessage: OpenAI.ChatCompletionSystemMessageParam = {
     role: 'system',
-    content: `You are a helpful assistant running in a shell terminal. You know nothing about the user, except that he's in \`${process.cwd()}\` directory, and uses a \`${process.platform}\` system, if you need more information, ask him.`,
+    content: `You are a helpful assistant running in a shell terminal. The user is in \`${process.cwd()}\` directory, and uses a \`${process.platform}\` system, if you need more info, ask him.`,
   }
 
   constructor(apiKey: string) {
@@ -17,12 +17,12 @@ export class GPT {
   }
 
   async sendMessage(prompt: string) {
-    const messages = await GPT.getConversation()
+    const messages = await GPT.loadConversation()
     messages.push({ role: 'user', content: prompt })
 
     const completion = await this.openai.chat.completions.create({
       messages: [this.systemMessage, ...messages],
-      model: 'gpt-3.5-turbo',
+      model: 'gpt-4-turbo',
       stream: true,
     })
 
@@ -41,9 +41,9 @@ export class GPT {
     GPT.saveConversation(messages)
   }
 
-  static async getConversation() {
+  static async loadConversation() {
     try {
-      const messages = await Bun.file(currentConversationPath).json()
+      const messages = await Bun.file(latestConversationPath).json()
       return messages
     } catch (err) {
       // @ts-ignore
@@ -54,6 +54,6 @@ export class GPT {
   
   static async saveConversation(messages: OpenAI.ChatCompletionMessageParam[]) {
     const messagesJSON = JSON.stringify(messages)
-    await Bun.write(currentConversationPath, messagesJSON)
+    await Bun.write(latestConversationPath, messagesJSON)
   }
 }
