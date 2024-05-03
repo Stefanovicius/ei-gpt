@@ -1,59 +1,94 @@
 import OpenAI from 'openai'
-import { colorize, delay, eiDir } from './utils'
+import { fromRootDir } from './storage'
+import chalk from 'chalk'
 
-export const latestConversationPath = eiDir('messages', 'latest')
+export const latestConversationPath = fromRootDir('messages', 'latest')
+
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
+export interface Message {
+  role: 'system' | 'user' | 'assistant'
+  content: string
+}
+
+type Size = '1024x1024' | '256x256' | '512x512' | '1792x1024' | '1024x1792'
+type DallE = 'dall-e-2' | 'dall-e-3'
 
 export class GPT {
-  private openai: OpenAI
-  private systemMessage: OpenAI.ChatCompletionSystemMessageParam = {
+  #openai: OpenAI
+  #model: string
+  #systemMessage: Message = {
     role: 'system',
-    content: `You are a helpful assistant running in a shell terminal. The user is in \`${process.cwd()}\` directory, and uses a \`${process.platform}\` system, if you need more info, ask him.`,
+    content: `You are a helpful assistant running in a shell terminal, the user is in \`${process.cwd()}\` directory, and uses a \`${process.platform}\` system, this conversation does not necessarily revolve around this.`,
   }
+  #conversation: Message[]
 
-  constructor(apiKey: string) {
-    this.openai = new OpenAI({
+  constructor(
+    apiKey: string,
+    conversation: Message[] = [],
+    model: string = 'gpt-4-turbo',
+  ) {
+    this.#openai = new OpenAI({
       apiKey,
     })
+    this.#conversation = [this.#systemMessage, ...conversation]
+    this.#model = model
   }
 
-  async sendMessage(prompt: string) {
-    const messages = await GPT.loadConversation()
-    messages.push({ role: 'user', content: prompt })
+  get conversation() {
+    return this.#conversation.filter(({ role }) => role !== 'system')
+  }
 
-    const completion = await this.openai.chat.completions.create({
-      messages: [this.systemMessage, ...messages],
-      model: 'gpt-4-turbo',
+  async answer(prompt: string, model: string = this.#model) {
+    this.#conversation.push({ role: 'user', content: prompt })
+
+    const completion = await this.#openai.chat.completions.create({
+      messages: this.#conversation,
       stream: true,
+      model,
     })
 
-    const gptName = colorize('\nGPT: ', 63, 169, 59)
+    const gptName = chalk.green(`\nGPT (${model}): `)
     process.stdout.write(gptName)
 
-    let response = ''
+    let content = ''
     for await (const chunk of completion) {
-      const content = chunk.choices[0]?.delta?.content || ''
-      process.stdout.write(content)
-      response += content
+      const chunkContent = chunk.choices[0]?.delta?.content || ''
+      process.stdout.write(chunkContent)
+      content += chunkContent
       await delay(50)
     }
     console.log('\n')
-    messages.push({ role: 'assistant', content: response })
-    GPT.saveConversation(messages)
+
+    const message: Message = { role: 'assistant', content }
+
+    this.#conversation.push(message)
+    return message
   }
 
-  static async loadConversation() {
-    try {
-      const messages = await Bun.file(latestConversationPath).json()
-      return messages
-    } catch (err) {
-      // @ts-ignore
-      if (err.code !== 'ENOENT') console.error(err)
-      return []
-    }
+  async answerSystem(prompt: string, model: string = this.#model) {
+    const message: Message = { role: 'system', content: prompt }
+    const messages = [message, ...this.conversation]
+    const { choices } = await this.#openai.chat.completions.create({
+      messages,
+      model,
+    })
+    const [response] = choices
+    return response
   }
-  
-  static async saveConversation(messages: OpenAI.ChatCompletionMessageParam[]) {
-    const messagesJSON = JSON.stringify(messages)
-    await Bun.write(latestConversationPath, messagesJSON)
+
+  async generateImage(
+    prompt: string,
+    size: Size = '1024x1024',
+    model: DallE = 'dall-e-3',
+  ) {
+    const response = await this.#openai.images.generate({
+      model,
+      prompt,
+      n: 1,
+      size,
+    })
+    const imageURL = response.data[0].url
+    console.log(`\n${imageURL}\n`)
   }
 }

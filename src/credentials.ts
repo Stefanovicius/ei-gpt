@@ -1,10 +1,11 @@
-import readline from 'readline/promises'
 import crypto from 'crypto'
+import chalk from 'chalk'
+import prompts from 'prompts'
 
-import { eiDir, colorize } from './utils'
+import { fromRootDir } from './storage'
 
 const credentialsDir = 'credentials'
-const credentialsPath = eiDir(credentialsDir, 'index')
+const credentialsPath = fromRootDir(credentialsDir, 'index')
 const algorithm = 'aes-256-cbc'
 
 function encrypt(text: string) {
@@ -14,12 +15,12 @@ function encrypt(text: string) {
   const cipher = crypto.createCipheriv(algorithm, Buffer.from(key), iv)
   let encrypted = cipher.update(text)
   encrypted = Buffer.concat([encrypted, cipher.final()])
-  Bun.write(eiDir(credentialsDir, ivString), key.toString('hex'))
+  Bun.write(fromRootDir(credentialsDir, ivString), key.toString('hex'))
   return [ivString, encrypted.toString('hex')]
 }
 
 async function decrypt(iv: string, encryptedText: string) {
-  const key = await Bun.file(eiDir(credentialsDir, iv)).text()
+  const key = await Bun.file(fromRootDir(credentialsDir, iv)).text()
   const decipher = crypto.createDecipheriv(
     algorithm,
     Buffer.from(key, 'hex'),
@@ -31,16 +32,15 @@ async function decrypt(iv: string, encryptedText: string) {
 }
 
 async function setEncryptReturnApiKey() {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
+  const { apiKey } = await prompts({
+    type: 'password',
+    name: 'apiKey',
+    message: 'OpenAI API key',
   })
-  const apiKey = await rl.question(colorize('Enter your API key: ', 0, 0, 255))
   const encrypted = encrypt(apiKey)
   const encryptedJSON = JSON.stringify(encrypted)
   Bun.write(credentialsPath, encryptedJSON)
-  rl.close()
-  console.log(colorize('Success.', 0, 255, 0))
+  chalk.green('Success.')
   return apiKey
 }
 
@@ -55,8 +55,8 @@ async function getEncryptedApiKey() {
   }
 }
 
-export async function getApiKey(setApiKey: boolean) {
-  if (setApiKey) return await setEncryptReturnApiKey()
+export async function getSetApiKey(set: boolean = false) {
+  if (set) return await setEncryptReturnApiKey()
   else {
     const apiKey = await getEncryptedApiKey()
     if (!apiKey) return await setEncryptReturnApiKey()
