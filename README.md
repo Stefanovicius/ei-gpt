@@ -19,9 +19,11 @@ To get started, install the prerequisites, get the OpenAI API key, then clone th
 ## Usage
 
 ```
-ei [prompt]  prompt the chatgpt model
-ei cls       clear/reset the conversation
-ei set -k    set the openai api key
+ei [prompt]              prompt the chatgpt model
+ei list|ls               lists all conversations
+ei image|img <prompt>    generates an image from a prompt
+ei set <config> [value]  sets global configurations
+ei directory|dir         opens the .ei-gpt directory
 ```
 
 ## Notes
